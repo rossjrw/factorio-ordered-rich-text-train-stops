@@ -1,0 +1,9 @@
+{
+  "name": "ordered-rich-text-train-stops",
+  "version": "0.0.1",
+  "title": "Ordered Rich Text Train Stops",
+  "author": "Ross Williams",
+  "factorio_version": "1.1",
+  "dependencies": ["base >= 1.1"],
+  "description": "Adds a list of train stops sorted so that rich text icons are in the same order as your inventory."
+}

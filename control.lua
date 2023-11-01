@@ -1,12 +1,15 @@
+require("scripts/rich-text-sort")
+require("scripts/train-stop-list-ui")
+
 -- Construct list when locomotive UI is opened
 script.on_event(
   defines.events.on_gui_opened,
   function(event)
     if event.entity == nil then return end
-    if event.entity.type == "locomotive" then
-      local player = game.get_player(event.player_index)
-      make_train_stop_list_ui(player, event.entity)
-    end
+    if event.entity.type ~= "locomotive" then return end
+    local player = game.get_player(event.player_index)
+    if player == nil then return end
+    make_train_stop_list_ui(player, event.entity)
   end
 )
 
@@ -28,16 +31,17 @@ script.on_event(
     if event.element.tags == nil then return end
     if event.element.tags["action"] ~= "add_train_stop_to_schedule" then return end
     local player = game.get_player(event.player_index)
+    if player == nil then return end
     add_stop_to_train_schedule(player.opened, event.element.caption)
   end
 )
 
--- Construct list UI
+--- Construct list UI
 function make_train_stop_list_ui(player, locomotive)
   if player.gui.relative.train_stop_list_container ~= nil then
     destroy_train_stop_list_ui(player)
   end
-  
+
   local container = player.gui.relative.add({
     name = "train_stop_list_container",
     type = "frame",
@@ -56,7 +60,7 @@ function make_train_stop_list_ui(player, locomotive)
   })
   info_label.style.single_line = false
   info_label.style.maximal_width = 300
- 
+
 
   local list_container = container.add({
     name = "train_stop_list_container",
@@ -83,15 +87,13 @@ function make_train_stop_list_ui(player, locomotive)
   table.sort(
     surface_train_stops,
     function(stop_1, stop_2)
-      stop_1_name = replace_item_in_stop_name_with_order_string(game, stop_1)
-      stop_2_name = replace_item_in_stop_name_with_order_string(game, stop_2)
-      return stop_1_name < stop_2_name
+      return sort_rich_text_strings(game, stop_1.backer_name, stop_2.backer_name)
     end
   )
   for index, train_stop in ipairs(surface_train_stops) do
     local button = list.add({
       type = "button",
-      name = "train_stop_button_"..index,
+      name = "train_stop_button_" .. index,
       tags = { action = "add_train_stop_to_schedule" },
       caption = train_stop.backer_name,
       style = "list_box_item"
@@ -105,19 +107,6 @@ function destroy_train_stop_list_ui(player)
   if player == nil then return end
   if not player.gui.relative.train_stop_list_container then return end
   player.gui.relative.train_stop_list_container.destroy()
-end
-
-function replace_item_in_stop_name_with_order_string(game, stop)
-  -- Doesn't handle non-items e.g. fluids
-  local stop_name = string.gsub(
-    stop.backer_name,
-    "%[item=(.-)%]",
-    function(item_name)
-      local item = game.item_prototypes[item_name]
-      return item.group.order..item.subgroup.order..item.order
-    end
-  )
-  return stop_name
 end
 
 function add_stop_to_train_schedule(locomotive, stop_name)

@@ -4,7 +4,12 @@ function add_stop_to_train_schedule(locomotive, stop_name)
   local train = locomotive.train
   if train == nil then return end
   local existing_schedule = train.schedule
-  if existing_schedule == nil then return end
+  if existing_schedule == nil then
+    existing_schedule = {
+      current = 1,
+      records = {}
+    }
+  end
   local new_schedule = {
     current = existing_schedule.current,
     records = {}

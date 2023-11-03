@@ -84,8 +84,14 @@ function make_train_stop_list_ui(player, locomotive)
   )
 
   -- Create a button in the UI for each stop
+  local button_container = list.add({
+    type = "table",
+    column_count = 2,
+    name = "train_stop_button_container"
+  })
+  button_container.style.horizontally_stretchable = true
   for index, train_stop in ipairs(train_stops) do
-    local button = list.add({
+    local button = button_container.add({
       type = "button",
       name = "train_stop_button_" .. index,
       tags = { action = "add_train_stop_to_schedule" },
@@ -95,6 +101,22 @@ function make_train_stop_list_ui(player, locomotive)
       )
     })
     button.style.horizontally_stretchable = true
+    button.style.horizontally_squashable = true
+    button.style.bottom_margin = -4
+
+    if train_stop.count > 1 then
+      local count = button_container.add({
+        type = "label",
+        name = "train_stop_button_" .. index .. "_count",
+        caption = train_stop.count
+      })
+      count.style.left_margin = -20
+      button.style.right_padding = 28
+    else
+      button_container.add({
+        type = "empty-widget"
+      })
+    end
   end
 end
 

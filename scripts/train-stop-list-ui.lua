@@ -45,22 +45,54 @@ function make_train_stop_list_ui(player, locomotive)
   list.style.maximal_width = 300
 
   -- Get list of train stops and sort them, respecting rich text
-  surface_train_stops = game.get_train_stops({
+  local train_stops = {}
+  for _, train_stop in pairs(game.get_train_stops({
     surface = locomotive.surface
-  })
+  })) do
+    -- If a train stop with this name was already processed, just increment its count
+    local seen_stop_with_name = false
+    for index = 1, #train_stops do
+      if train_stops[index].name == train_stop.backer_name then
+        train_stops[index].count = train_stops[index].count + 1
+        seen_stop_with_name = true
+        break
+      end
+    end
+    if not seen_stop_with_name then
+      -- Otherwise register this stop and check its accessibility
+      -- Note that accessibility check is per name, not per stop, so it only needs to be performed once for each stop name
+      table.insert(
+        train_stops,
+        {
+          name = train_stop.backer_name,
+          stop = train_stop,
+          count = 1,
+          accessible = stop_is_accessible_to_train(locomotive, train_stop.backer_name)
+        }
+      )
+    end
+  end
+
+  -- Sort list of stops by their name and accessibility to this train
   table.sort(
-    surface_train_stops,
+    train_stops,
     function(stop_1, stop_2)
-      return sort_rich_text_strings(game, stop_1.backer_name, stop_2.backer_name)
+      if stop_1.accessible and not stop_2.accessible then return true end
+      if not stop_1.accessible and stop_2.accessible then return false end
+      return sort_rich_text_strings(game, stop_1.name, stop_2.name)
     end
   )
-  for index, train_stop in ipairs(surface_train_stops) do
+
+  -- Create a button in the UI for each stop
+  for index, train_stop in ipairs(train_stops) do
     local button = list.add({
       type = "button",
       name = "train_stop_button_" .. index,
       tags = { action = "add_train_stop_to_schedule" },
-      caption = train_stop.backer_name,
-      style = "list_box_item"
+      caption = train_stop.stop.backer_name,
+      style = (
+        train_stop.accessible and "list_box_item" or "not_accessible_station_in_station_selection"
+      )
     })
     button.style.horizontally_stretchable = true
   end
@@ -70,6 +102,6 @@ end
 ---@param player LuaPlayer
 function destroy_train_stop_list_ui(player)
   if player == nil then return end
-  if not player.gui.relative.train_stop_list_container then return end
+  if player.gui.relative.train_stop_list_container == nil then return end
   player.gui.relative.train_stop_list_container.destroy()
 end

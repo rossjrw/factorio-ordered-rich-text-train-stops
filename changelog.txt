@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2023-11-03
+  Changes:
+    - Inaccessible train stops are now shown in red and sorted beneath accessible ones.
+    - Train stops that share a name are collated into a single entry with a number to show how many there are.
+    - All categories of rich text icons are now sorted.
+---------------------------------------------------------------------------------------------------
 Version: 0.0.1
 Date: 2023-10-31
   Changes:

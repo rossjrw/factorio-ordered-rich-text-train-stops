@@ -18,4 +18,4 @@ jobs:
           mod-name: 'ordered-rich-text-train-stops'
         env:
           FACTORIO_MODS_TOKEN: ${{ secrets.FACTORIO_TOKEN }}
-          FILENAME: ${{ steps.package.asset_path }}
+          FILENAME: ${{ steps.package.outputs.asset_path }}

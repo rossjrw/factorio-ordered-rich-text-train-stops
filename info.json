@@ -1,6 +1,6 @@
 {
   "name": "ordered-rich-text-train-stops",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "title": "Ordered Rich Text Train Stops",
   "description": "Adds a list of train stops sorted so that rich text icons are in the same order as your inventory.",
   "author": "Ross Williams",

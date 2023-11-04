@@ -53,19 +53,25 @@ function stop_is_accessible_to_train(locomotive, stop_name)
   local train = locomotive.train
   if train == nil then return false end
 
+  -- Get the train's current state
   local current_stop_index = nil
   if train.schedule ~= nil then
     current_stop_index = train.schedule.current
   end
+  local manual_mode = train.manual_mode
 
+  -- Instruct train to go to the station
+  -- If this results in a path being assigned, the stop is accessible
   local test_stop_index = add_stop_to_train_schedule(locomotive, stop_name, true)
   if test_stop_index == nil then return false end
   train.go_to_station(test_stop_index)
   local accessible = train.has_path
 
+  -- Revert train back to its state before the test
   if current_stop_index ~= nil then
     train.go_to_station(current_stop_index)
   end
+  train.manual_mode = manual_mode
   remove_stop_from_train_schedule(locomotive, test_stop_index)
 
   return accessible

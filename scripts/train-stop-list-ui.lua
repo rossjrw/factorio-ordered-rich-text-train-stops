@@ -6,6 +6,9 @@ function make_train_stop_list_ui(player, locomotive)
     destroy_train_stop_list_ui(player)
   end
 
+  local train = locomotive.train
+  if train == nil then return false end
+
   local container = player.gui.relative.add({
     name = "train_stop_list_container",
     type = "frame",
@@ -24,7 +27,6 @@ function make_train_stop_list_ui(player, locomotive)
   })
   info_label.style.single_line = false
   info_label.style.maximal_width = 300
-
 
   local list_container = container.add({
     name = "train_stop_list_container",
@@ -67,7 +69,7 @@ function make_train_stop_list_ui(player, locomotive)
           name = train_stop.backer_name,
           stop = train_stop,
           count = 1,
-          accessible = stop_is_accessible_to_train(locomotive, train_stop.backer_name)
+          accessible = stop_is_accessible_to_train(train, train_stop.backer_name)
         }
       )
     end

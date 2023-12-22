@@ -1,11 +1,9 @@
 --- Adds a stop to a locomotive's schedule and returns the stop's index.
----@param locomotive LuaEntity
+---@param train LuaTrain
 ---@param stop_name string
 ---@param temporary boolean?
 ---@return int?
-function add_stop_to_train_schedule(locomotive, stop_name, temporary)
-  local train = locomotive.train
-  if train == nil then return end
+function add_stop_to_train_schedule(train, stop_name, temporary)
   local existing_schedule = train.schedule
   if existing_schedule == nil then
     existing_schedule = {
@@ -31,10 +29,9 @@ function add_stop_to_train_schedule(locomotive, stop_name, temporary)
   return #train.schedule.records
 end
 
----@param locomotive LuaEntity
+---@param train LuaTrain
 ---@param stop_index int
-function remove_stop_from_train_schedule(locomotive, stop_index)
-  local train = locomotive.train
+function remove_stop_from_train_schedule(train, stop_index)
   if train == nil then return end
   local schedule = train.schedule
   if schedule == nil then return end
@@ -46,13 +43,10 @@ function remove_stop_from_train_schedule(locomotive, stop_index)
   train.schedule = schedule
 end
 
----@param locomotive LuaEntity
+---@param train LuaTrain
 ---@param stop_name string
 ---@return boolean
-function stop_is_accessible_to_train(locomotive, stop_name)
-  local train = locomotive.train
-  if train == nil then return false end
-
+function stop_is_accessible_to_train(train, stop_name)
   -- Get the train's current state
   local current_stop_index = nil
   if train.schedule ~= nil then
@@ -62,7 +56,7 @@ function stop_is_accessible_to_train(locomotive, stop_name)
 
   -- Instruct train to go to the station
   -- If this results in a path being assigned, the stop is accessible
-  local test_stop_index = add_stop_to_train_schedule(locomotive, stop_name, true)
+  local test_stop_index = add_stop_to_train_schedule(train, stop_name, true)
   if test_stop_index == nil then return false end
   train.go_to_station(test_stop_index)
   local accessible = train.has_path
@@ -72,7 +66,7 @@ function stop_is_accessible_to_train(locomotive, stop_name)
     train.go_to_station(current_stop_index)
   end
   train.manual_mode = manual_mode
-  remove_stop_from_train_schedule(locomotive, test_stop_index)
+  remove_stop_from_train_schedule(train, test_stop_index)
 
   return accessible
 end

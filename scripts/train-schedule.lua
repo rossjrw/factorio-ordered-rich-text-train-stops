@@ -70,3 +70,56 @@ function stop_is_accessible_to_train(train, stop_name)
 
   return accessible
 end
+
+---@param train LuaTrain
+---@param stop_names string[]
+---@return string[]
+function get_accessible_stops_to_train(train, stop_names)
+  game.print("Starting accessibility test")
+
+  -- Create a virtual train to test stops with
+  local locomotive = train.locomotives["front_movers"][1]
+  game.print(locomotive)
+  local surface = locomotive.surface
+  game.print(surface)
+  local virtual_locomotive = surface.create_entity({
+    name = "locomotive",
+    position = locomotive.position,
+    direction = locomotive.direction,
+    force = locomotive.force,
+    fast_replace = false,
+    raise_built = false,
+    create_build_effect_smoke = false,
+    move_stuck_players = false,
+  })
+
+  game.print("Created virtual locomotive")
+
+  if virtual_locomotive == nil then return {} end
+  local virtual_train = virtual_locomotive.train
+
+  game.print("Created virtual train")
+
+  -- Filter stops by accessibility to virtual train
+  local filtered_train_stop_names = {}
+  -- Filtering is wrapped in a protected call so that errors can be masked until cleanup has run
+  local success, error_message = pcall(function()
+    for _, stop_name in ipairs(stop_names) do
+      if stop_is_accessible_to_train(virtual_train, stop_name) then
+        table.insert(filtered_train_stop_names, stop_name)
+      end
+    end
+  end)
+
+  game.print("Completed filtering, found " .. #filtered_train_stop_names)
+
+  -- Clean up by deleting the virtual train
+  virtual_locomotive.destroy({})
+
+  game.print("Destroyed virtual train")
+
+  -- Unmask any errors from the filtering
+  if not success then error(error_message) end
+
+  return filtered_train_stop_names
+end

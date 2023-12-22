@@ -48,7 +48,7 @@ function make_train_stop_list_ui(player, locomotive)
 
   -- Get list of train stops and sort them, respecting rich text
   local train_stops = {}
-  for _, train_stop in pairs(game.get_train_stops({
+  for _, train_stop in ipairs(game.get_train_stops({
     surface = locomotive.surface
   })) do
     -- If a train stop with this name was already processed, just increment its count
@@ -61,17 +61,34 @@ function make_train_stop_list_ui(player, locomotive)
       end
     end
     if not seen_stop_with_name then
-      -- Otherwise register this stop and check its accessibility
-      -- Note that accessibility check is per name, not per stop, so it only needs to be performed once for each stop name
+      -- Otherwise register this stop
       table.insert(
         train_stops,
         {
           name = train_stop.backer_name,
           stop = train_stop,
           count = 1,
-          accessible = stop_is_accessible_to_train(train, train_stop.backer_name)
+          accessible = nil
         }
       )
+    end
+  end
+
+  -- Check accessibility of each stop to this train
+  local train_stop_names = {}
+  for _, train_stop in ipairs(train_stops) do
+    table.insert(train_stop_names, train_stop.name)
+  end
+  local accessible_train_stop_names = get_accessible_stops_to_train(train, train_stop_names)
+
+  -- Mark each stop by whether it was found to be accessible
+  for _, train_stop in ipairs(train_stops) do
+    train_stop.accessible = false
+    for _, accessible_train_stop_name in ipairs(accessible_train_stop_names) do
+      if train_stop.name == accessible_train_stop_name then
+        train_stop.accessible = true
+        break
+      end
     end
   end
 

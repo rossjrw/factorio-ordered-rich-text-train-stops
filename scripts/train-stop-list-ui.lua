@@ -67,7 +67,8 @@ function make_train_stop_list_ui(player, locomotive)
           name = train_stop.backer_name,
           stop = train_stop,
           count = 1,
-          accessible = stop_is_accessible_to_train(locomotive, train_stop.backer_name)
+          -- accessible = stop_is_accessible_to_train(locomotive, train_stop.backer_name)
+          accessible = true
         }
       )
     end

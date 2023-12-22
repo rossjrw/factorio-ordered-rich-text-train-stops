@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 2023-12-22
+  Changes:
+    - Accessibility of train stops, previously depicted with red text, is no longer determined as this was causing too many other problems.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 2023-11-04
   Changes:
